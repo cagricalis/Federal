@@ -233,11 +233,11 @@ func writeClients(data string) {
 
 func main() {
 
-	log.Println("Started listening TCP on port: 9007")
-	log.Println("Started listening Websocket on port: 9008")
+	log.Println("Started listening TCP on port: 9009")
+	log.Println("Started listening Websocket on port: 9010")
 
 	// Listen TCP Clients
-	sw, err := net.Listen("tcp4", ":9007")
+	sw, err := net.Listen("tcp4", ":9009")
 
 	if err != nil {
 		log.Println(err.Error())
@@ -258,7 +258,7 @@ func main() {
 	// Listen Websocket Clients
 	handleWebsocket()
 
-	if err := http.ListenAndServe(":9008", nil); err != nil {
+	if err := http.ListenAndServe(":9010", nil); err != nil {
 		log.Println(err.Error())
 		return
 	}
