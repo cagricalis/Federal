@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Onlock</title>
+	<link href="https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap" rel="stylesheet">
+	<style>
+		* { margin: 0; padding: 0; text-decoration: none }
+
+		body {
+			width: 100%;
+			height: auto;
+			background: #f5f5f5;
+			font-size: 13px;
+			font-family: 'Quicksand', sans-serif;
+		}
+
+		.container {
+			width: 80rem;
+			height: auto;
+			margin: 50px auto;
+		}
+
+		.lockers {
+			width: 100%;
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		.lockers .locker {
+			width: 16%;
+			height: 150px;
+			padding: 10px 1%;
+			margin: 0 1% 20px 1%;
+			background-color: #f44336;
+			border-radius: 5px;
+			color: #fff;
+			cursor: pointer;
+			-webkit-box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.2);
+			-moz-box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.2);
+			box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.2);
+			display: none;
+		}
+
+
+
+		.lockers .locker.closed {
+			display: block;
+			background-color: #f44336;
+		}
+
+		.lockers .locker.open {
+			display: block;
+			background-color: #0cb58b;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="lockers">
+			<div class="locker" data-id="1">
+				<h2>Lock 01</h2>
+			</div>
+			<div class="locker" data-id="2">
+				<h2>Lock 02</h2>
+			</div>
+			<div class="locker" data-id="3">
+				<h2>Lock 03</h2>
+			</div>
+			<div class="locker" data-id="4">
+				<h2>Lock 04</h2>
+			</div>
+			<div class="locker" data-id="5">
+				<h2>Lock 05</h2>
+			</div>
+
+			<div class="locker" data-id="6">
+				<h2>Lock 06</h2>
+			</div>
+			<div class="locker" data-id="7">
+				<h2>Lock 07</h2>
+			</div>
+			<div class="locker" data-id="8">
+				<h2>Lock 08</h2>
+			</div>
+			<div class="locker" data-id="9">
+				<h2>Lock 09</h2>
+			</div>
+			<div class="locker" data-id="10">
+				<h2>Lock 10</h2>
+			</div>
+
+			<div class="locker" data-id="11">
+				<h2>Lock 11</h2>
+			</div>
+			<div class="locker" data-id="12">
+				<h2>Lock 12</h2>
+			</div>
+			<div class="locker" data-id="13">
+				<h2>Lock 13</h2>
+			</div>
+			<div class="locker" data-id="14">
+				<h2>Lock 14</h2>
+			</div>
+			<div class="locker" data-id="15">
+				<h2>Lock 15</h2>
+			</div>
+
+			<div class="locker" data-id="16">
+				<h2>Lock 16</h2>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			const socket = new WebSocket("ws://51.15.130.74:9008/ws");
+			const lockers = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+			socket.onopen = function () {
+				console.log("Socket connected!");
+			};
+
+			socket.onmessage = function (e) {
+				console.log("Socket: " + e.data);
+				if (e.data.startsWith("[QR:LOCKS:") && e.data.endsWith(":OK]")) {
+					for (let i = 0; i < 16; i++) {
+						const status = parseInt(e.data[i+10], 10);
+						lockers[i] = status;
+
+						switch (status) {
+							case 0: {
+								$(".locker").eq(i).removeClass("open").addClass("closed");
+								break;
+							}
+
+							case 1: {
+								$(".lockers .locker").eq(i).addClass("open").removeClass("closed");
+								break;
+							}
+
+							case 9: {
+								$(".locker").eq(i).removeClass("open").removeClass("closed");
+								break;
+							}
+						}
+					}
+				}
+			};
+
+			$(".lockers .locker").click(function () {
+				const lockerId = $(this).data("id") - 1;
+
+				if (lockers[lockerId] === 0) {
+					socket.send("[QUNLOCK:" + lockerId + "]")
+                    socket.onclose = function(message) {
+                        console.log("Connection closed", e);
+                    };
+				} else if (lockers[lockerId] === 1) {
+					socket.send("[QLOCK:" + lockerId + "]")
+                    socket.onclose = function(message) {
+                        console.log("Connection closed", e);
+                    };
+				}
+			})
+		});
+	</script>
+</body>
+</html>
